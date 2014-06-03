@@ -19,60 +19,60 @@ class PluginDomainupdater extends ServicePlugin
     function getVariables()
     {
         $variables = array(
-            /*T*/'Plugin Name'/*/T*/   => array(
+            lang('Plugin Name')   => array(
                 'type'          => 'hidden',
-                'description'   => /*T*/''/*/T*/,
-                'value'         => /*T*/'Domain Updater'/*/T*/,
+                'description'   => '',
+                'value'         => lang('Domain Updater'),
             ),
-            /*T*/'Enabled'/*/T*/       => array(
+            lang('Enabled')       => array(
                 'type'          => 'yesno',
-                'description'   => /*T*/'When enabled, this service will check all active domains and update the internal expiration date of the domains.  This date is used to send expiration notices among other things.'/*/T*/,
+                'description'   => lang('When enabled, this service will check all active domains and update the internal expiration date of the domains.  This date is used to send expiration notices among other things.'),
                 'value'         => '0',
             ),
-            /*T*/'Sync Due Date?'/*/T*/       => array(
+            lang('Sync Due Date?')       => array(
                 'type'          => 'yesno',
-                'description'   => /*T*/'When enabled, a domain will have its next due date updated to the expiration date at the registrar.'/*/T*/,
+                'description'   => lang('When enabled, a domain will have its next due date updated to the expiration date at the registrar.'),
                 'value'         => '0',
             ),
-            /*T*/'Cancel Domains?'/*/T*/       => array(
+            lang('Cancel Domains?')       => array(
                 'type'          => 'yesno',
-                'description'   => /*T*/'When enabled, a domain in ClientExec that does not exist at the registrar will be marked as cancelled.'/*/T*/,
+                'description'   => lang('When enabled, a domain in ClientExec that does not exist at the registrar will be marked as cancelled.'),
                 'value'         => '0',
             ),
-            /*T*/'Force Recurring?'/*/T*/       => array(
+            lang('Force Recurring?')       => array(
                 'type'          => 'yesno',
-                'description'   => /*T*/'When enabled, a domain will always have the recurring fee turned on and enabled.'/*/T*/,
+                'description'   => lang('When enabled, a domain will always have the recurring fee turned on and enabled.'),
                 'value'         => '1',
             ),
-            /*T*/'E-mail Notifications'/*/T*/       => array(
+            lang('E-mail Notifications')       => array(
                 'type'          => 'textarea',
-                'description'   => /*T*/'If domains are updated when this service is run, a summary E-mail will be sent to this address.'/*/T*/,
+                'description'   => lang('If domains are updated when this service is run, a summary E-mail will be sent to this address.'),
                 'value'         => '',
             ),
-            /*T*/'Run schedule - Minute'/*/T*/  => array(
+            lang('Run schedule - Minute')  => array(
                 'type'          => 'text',
-                'description'   => /*T*/'Enter number, range, list or steps'/*/T*/,
+                'description'   => lang('Enter number, range, list or steps'),
                 'value'         => '30',
                 'helpid'        => '8',
             ),
-            /*T*/'Run schedule - Hour'/*/T*/  => array(
+            lang('Run schedule - Hour')  => array(
                 'type'          => 'text',
-                'description'   => /*T*/'Enter number, range, list or steps'/*/T*/,
+                'description'   => lang('Enter number, range, list or steps'),
                 'value'         => '*',
             ),
-            /*T*/'Run schedule - Day'/*/T*/  => array(
+            lang('Run schedule - Day')  => array(
                 'type'          => 'text',
-                'description'   => /*T*/'Enter number, range, list or steps'/*/T*/,
+                'description'   => lang('Enter number, range, list or steps'),
                 'value'         => '*',
             ),
-            /*T*/'Run schedule - Month'/*/T*/  => array(
+            lang('Run schedule - Month')  => array(
                 'type'          => 'text',
-                'description'   => /*T*/'Enter number, range, list or steps'/*/T*/,
+                'description'   => lang('Enter number, range, list or steps'),
                 'value'         => '*',
             ),
-            /*T*/'Run schedule - Day of the week'/*/T*/  => array(
+            lang('Run schedule - Day of the week')  => array(
                 'type'          => 'text',
-                'description'   => /*T*/'Enter number in range 0-6 (0 is Sunday) or a 3 letter shortcut (e.g. sun)'/*/T*/,
+                'description'   => lang('Enter number in range 0-6 (0 is Sunday) or a 3 letter shortcut (e.g. sun)'),
                 'value'         => '*',
             ),
         );
