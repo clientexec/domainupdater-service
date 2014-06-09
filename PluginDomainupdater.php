@@ -88,13 +88,16 @@ class PluginDomainupdater extends ServicePlugin
      * @return void
      */
     function execute() {
+        include_once 'modules/admin/models/StatusAliasGateway.php' ;
+
         $domainNameGateway = new DomainNameGateway($this->user);
         $messages = array();
 
         // get all active domains
-        $query = "SELECT d.id FROM domains d, package p, promotion pr WHERE d.status=? AND d.Plan=p.id AND p.planid=pr.id AND pr.type=3";
+        $statuses = StatusAliasGateway::getInstance($this->user)->getPackageStatusIdsFor(PACKAGE_STATUS_ACTIVE);
+        $query = "SELECT d.id FROM domains d, package p, promotion pr WHERE d.status IN(".implode(', ', $statuses).") AND d.Plan=p.id AND p.planid=pr.id AND pr.type=3";
 
-        $result = $this->db->query($query, PACKAGE_STATUS_ACTIVE);
+        $result = $this->db->query($query);
         while ( $row = $result->fetch() ) {
             $userPackage = new UserPackage($row['id']);
             $domainName = $userPackage->getCustomField('Domain Name');
