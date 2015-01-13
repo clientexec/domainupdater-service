@@ -44,6 +44,11 @@ class PluginDomainupdater extends ServicePlugin
                 'description'   => lang('When enabled, a domain will always have the recurring fee turned on and enabled.'),
                 'value'         => '1',
             ),
+            lang('Update Transfer Status?')       => array(
+                'type'          => 'yesno',
+                'description'   => lang('When enabled, Clientexec will check if a domain has been transfered and update internal values as needed.'),
+                'value'         => '1',
+            ),
             lang('E-mail Notifications')       => array(
                 'type'          => 'textarea',
                 'description'   => lang('If domains are updated when this service is run, a summary E-mail will be sent to this address.'),
@@ -102,14 +107,27 @@ class PluginDomainupdater extends ServicePlugin
             $userPackage = new UserPackage($row['id']);
             $domainName = $userPackage->getCustomField('Domain Name');
             $registrar = $userPackage->getCustomField('Registrar');
+            $registrationOption = $userPackage->getCustomField('Registration Option');
+
             // no registrar, so skip this entry
             if ( $registrar == '' || $registrar == null ) {
                 continue;
             }
 
+            // domain transfer, and not completed...
+            if ( $registrationOption == 1 && $userPackage->getCustomField('Transfer Status') != 'Completed' ) {
+                if ( $this->settings->get('plugin_domainupdater_Update Transfer Status?') == 1 ) {
+                    $domainNameGateway->getTransferStatus($userPackage);
+                }
+                else {
+                    CE_Lib::log(4, "$domainName is a transfer and not completed, skipping this entry as Update Transfer Status is not turned on.");
+                    continue;
+                }
+            }
+
             // only run if registered by host, or transfered and completed
-            if ( ($userPackage->getCustomField('Registration Option') == 0) ||
-                ($userPackage->getCustomField('Registration Option') == 1 && $userPackage->getCustomField('Transfer Status') == 'Completed') ) {
+            if ( ($registrationOption == 0) ||
+                ($registrationOption == 1 && $userPackage->getCustomField('Transfer Status') == 'Completed') ) {
 
                 try {
                     $domainInfo = $domainNameGateway->getGeneralInfoViaPlugin($userPackage);
@@ -179,14 +197,16 @@ class PluginDomainupdater extends ServicePlugin
                         // Only update the next due date if:
                         // - there are not invoices for the package
                         // OR
+                        // - the domain is a transfer
+                        // OR
                         // ( - the difference between the next due date and the domain expiration date is lower than 6 months (180 days)
                         //   AND
                         //   - the difference between the last invoice for the package and the domain expiration date is greater than 6 months (180 days)
                         // )
                         $lastInvoiceDate = $userPackage->getLastInvoiceDate();
-                        if($lastInvoiceDate === false){
+                        if ( $lastInvoiceDate === false || $registrationOption == 1 ){
                             $updateNextDueDate = true;
-                        }else{
+                        } else {
                             $nextBillDateDiff = CE_Lib::date_diff($recurringFee->getNextBillDate(), $date);
                             $lastInvoiceDateDiff = CE_Lib::date_diff($userPackage->getLastInvoiceDate(), $date);
                             if ((abs($nextBillDateDiff["d"]) < 180)
