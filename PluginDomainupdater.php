@@ -117,6 +117,10 @@ class PluginDomainupdater extends ServicePlugin
             // domain transfer, and not completed...
             if ( $registrationOption == 1 && $userPackage->getCustomField('Transfer Status') != 'Completed' ) {
                 if ( $this->settings->get('plugin_domainupdater_Update Transfer Status?') == 1 ) {
+                    if ( $transferId == '' || $transferId == null ) {
+                        $messages[] = $domainName . ' is a transfer and not complete, but has no transfer id; skipping.';
+                        continue;
+                    }
                     $domainNameGateway->getTransferStatus($userPackage);
                 }
                 else {
