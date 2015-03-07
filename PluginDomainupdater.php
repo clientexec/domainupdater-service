@@ -117,6 +117,10 @@ class PluginDomainupdater extends ServicePlugin
             // domain transfer, and not completed...
             if ( $registrationOption == 1 && $userPackage->getCustomField('Transfer Status') != 'Completed' ) {
                 if ( $this->settings->get('plugin_domainupdater_Update Transfer Status?') == 1 ) {
+                    if ( $transferId == '' || $transferId == null ) {
+                        $messages[] = $domainName . ' is a transfer and not complete, but has no transfer id; skipping.';
+                        continue;
+                    }
                     $domainNameGateway->getTransferStatus($userPackage);
                 }
                 else {
@@ -147,8 +151,6 @@ class PluginDomainupdater extends ServicePlugin
                     }
                 }
 
-
-
                 // check if we're in redemption status
                 // ToDo: We should not check RGP here, but set a variable in domainInfo instead
                 if ( $this->settings->get('plugin_domainupdater_Cancel Domains?') == 1 ) {
@@ -162,6 +164,11 @@ class PluginDomainupdater extends ServicePlugin
                 if ( $this->settings->get('plugin_domainupdater_Sync Due Date?') == 1 ) {
                     $recurringFee = $userPackage->getRecurringFeeEntry();
                     $date = date('Y-m-d', strtotime($domainInfo['expires']));
+                    // ensure date is valid
+                    if ( $date == '' || $date == 0 || $date == null || $date == false ) {
+                        $messages[] = 'Can not determine expiration date for ' . $domainName . '; skipping.';
+                        continue;
+                    }
 
                     if ( $this->settings->get('plugin_domainupdater_Force Recurring?') == 1 ) {
                         // RecurringFee didn't exist. Set the values.
