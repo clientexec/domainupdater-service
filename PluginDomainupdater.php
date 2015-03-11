@@ -57,13 +57,13 @@ class PluginDomainupdater extends ServicePlugin
             lang('Run schedule - Minute')  => array(
                 'type'          => 'text',
                 'description'   => lang('Enter number, range, list or steps'),
-                'value'         => '30',
+                'value'         => '0',
                 'helpid'        => '8',
             ),
             lang('Run schedule - Hour')  => array(
                 'type'          => 'text',
                 'description'   => lang('Enter number, range, list or steps'),
-                'value'         => '*',
+                'value'         => '0',
             ),
             lang('Run schedule - Day')  => array(
                 'type'          => 'text',
