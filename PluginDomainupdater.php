@@ -57,13 +57,13 @@ class PluginDomainupdater extends ServicePlugin
             lang('Run schedule - Minute')  => array(
                 'type'          => 'text',
                 'description'   => lang('Enter number, range, list or steps'),
-                'value'         => '30',
+                'value'         => '0',
                 'helpid'        => '8',
             ),
             lang('Run schedule - Hour')  => array(
                 'type'          => 'text',
                 'description'   => lang('Enter number, range, list or steps'),
-                'value'         => '*',
+                'value'         => '0',
             ),
             lang('Run schedule - Day')  => array(
                 'type'          => 'text',
@@ -211,7 +211,7 @@ class PluginDomainupdater extends ServicePlugin
                         //   - the difference between the last invoice for the package and the domain expiration date is greater than 6 months (180 days)
                         // )
                         $lastInvoiceDate = $userPackage->getLastInvoiceDate();
-                        if ( $lastInvoiceDate === false || $registrationOption == 1 ){
+                        if ( $lastInvoiceDate === false ){
                             $updateNextDueDate = true;
                         } else {
                             $nextBillDateDiff = CE_Lib::date_diff($recurringFee->getNextBillDate(), $date);
