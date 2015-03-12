@@ -139,7 +139,7 @@ class PluginDomainupdater extends ServicePlugin
                 } catch ( Exception $e ) {
                     // connection issue so stop running the service.
                     if ( $e->getCode() == EXCEPTION_CODE_CONNECTION_ISSUE ) {
-                        $messages[] = 'A connection issue has occured, stopping domain updater.';
+                        $messages[] = 'A connection issue has occurred, stopping domain updater.';
                         $this->sendSummaryEmail($messages);
                         return;
                     }
