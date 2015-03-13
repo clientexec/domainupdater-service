@@ -247,8 +247,12 @@ class PluginDomainupdater extends ServicePlugin
                 }
 
                 $numberOfDaysTillExpires = (int)$domainNameGateway->getExpiresInDays($domainInfo['expires']);
-                if ( $this->settings->get('plugin_domainupdater_Enable Renewal Notifications?') == 1 && $this->canhandleRenewalNotification() ) {
-                    $this->handleRenewalNotification($userPackage, $numberOfDaysTillExpires, $domainInfo);
+                if ( $this->settings->get('plugin_domainupdater_Enable Renewal Notifications?') == 1 ) {
+                    if ( $this->canhandleReneawlNotification() ) {
+                        $this->handleRenewalNotification($userPackage, $numberOfDaysTillExpires, $domainInfo);
+                    } else {
+                        throw new Exception($this->user->lang('Renewal Notifications are enabled, however the domain updater service is not scheduled to run only once per day.  Please ensure that this service is set to only run once per day.'));
+                    }
                 }
 
                 $userPackage->setCustomField('Plugin Status', $domainNameGateway->getPluginStatusByDays($numberOfDaysTillExpires));
@@ -336,10 +340,19 @@ class PluginDomainupdater extends ServicePlugin
      *
      * @return boolean
      */
-    private function canhandleRenewalNotification()
+    private function canhandleReneawlNotification()
     {
-        //ToDo: Check to make sure we are only set to run once a day.
-        return true;
+        // Ensure that this service is only set to run once a day.
+        $runMinute = $this->settings->get('plugin_domainupdater_Run schedule - Minute');
+        $runHour = $this->settings->get('plugin_domainupdater_Run schedule - Hour');
+        $runDay = $this->settings->get('plugin_domainupdater_Run schedule - Day');
+        $runMonth = $this->settings->get('plugin_domainupdater_Run schedule - Month');
+        $runWeekDay = $this->settings->get('plugin_domainupdater_Run schedule - Day of the week');
+
+        if ( is_numeric($runMinute) && is_numeric($runHour) && $runDay == '*' && $runMonth == '*' && $runWeekDay == '*' ) {
+            return true;
+        }
+        return false;
     }
 
     function output() { }
