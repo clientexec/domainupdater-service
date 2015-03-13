@@ -2,6 +2,7 @@
 require_once 'modules/admin/models/ServicePlugin.php';
 require_once 'modules/admin/models/Package.php';
 require_once 'modules/admin/models/TopLevelDomainGateway.php';
+require_once 'modules/clients/models/DomainNameGateway.php';
 
 /**
 * @package Plugins
@@ -49,6 +50,21 @@ class PluginDomainupdater extends ServicePlugin
                 'description'   => lang('When enabled, Clientexec will check if a domain has been transfered and update internal values as needed.'),
                 'value'         => '1',
             ),
+            lang('Enable Renewal Notifications?') => array(
+                'type'          => 'yesno',
+                'description'   => lang('When enabled, Clientexec will send out renewal notifications for domains that are expiring.'),
+                'value'         => '0'
+            ),
+            lang('Days To Send Renewal Notice')  => array(
+                'type'          => 'text',
+                'description'   => lang('Enter the number of days before a domain expires that Clientexec should send a renewal notification.  Seperate numbers with a comma.'),
+                'value'         => '30,7'
+            ),
+            lang('Days To Send Expiration Notice')  => array(
+                'type'          => 'text',
+                'description'   => lang('Enter the number of days after a domain expires that Clientexec should send a expiration notification.  Seperate numbers with a comma.'),
+                'value'         => '5',
+            ),
             lang('E-mail Notifications')       => array(
                 'type'          => 'textarea',
                 'description'   => lang('If domains are updated when this service is run, a summary E-mail will be sent to this address.'),
@@ -93,7 +109,7 @@ class PluginDomainupdater extends ServicePlugin
      * @return void
      */
     function execute() {
-        include_once 'modules/admin/models/StatusAliasGateway.php' ;
+        include_once 'modules/admin/models/StatusAliasGateway.php';
 
         $domainNameGateway = new DomainNameGateway($this->user);
         $messages = array();
@@ -231,6 +247,10 @@ class PluginDomainupdater extends ServicePlugin
                 }
 
                 $numberOfDaysTillExpires = (int)$domainNameGateway->getExpiresInDays($domainInfo['expires']);
+                if ( $this->settings->get('plugin_domainupdater_Enable Renewal Notifications?') == 1 && $this->canhandleRenewalNotification() ) {
+                    $this->handleRenewalNotification($userPackage, $numberOfDaysTillExpires, $domainInfo);
+                }
+
                 $userPackage->setCustomField('Plugin Status', $domainNameGateway->getPluginStatusByDays($numberOfDaysTillExpires));
                 $userPackage->setCustomField('Expiration Date', strtotime($domainInfo['expires']));
                 $userPackage->setCustomField('Auto Renew', $domainInfo['auto_renew']);
@@ -278,6 +298,49 @@ class PluginDomainupdater extends ServicePlugin
         }
     }
 
+    /**
+     * When Enable Renewal Notifications is enabled, this function will check if we should send a renewal notification and send one out
+     *
+     * @param  UserPackage $userPackage UserPackage of the domain we are checking
+     * @param  Int $daysTillExpires The number of days till the domain expires
+     * @param  Array $domainInfo Domain information array (getGeneralInfoViaPlugin function from DomainNameGateway)
+     * @return void
+     */
+    private function handleRenewalNotification($userPackage, $daysTillExpires, $domainInfo)
+    {
+        $domainNameGateway = new DomainNameGateway($this->user);
+        if ( $domainInfo['is_registered'] === true ) {
+            $daysToSendNotification = $this->settings->get('plugin_domainupdater_Days To Send Renewal Notice');
+            $daysToSendNotification = explode(",", $daysToSendNotification);
+
+            if ( in_array($daysTillExpires, $daysToSendNotification) )  {
+                $contactInfo = $domainNameGateway->callPlugin($userPackage, 'getContactInformation');
+                $registrantEmail = $contactInfo['Registrant']['EmailAddress'][1];
+                $domainNameGateway->sendReminder($userPackage->id, $registrantEmail, $domainInfo['expires']);
+            }
+        }
+        else if ( $domainInfo['is_expired'] === true ) {
+            $daysToSendNotification = $this->settings->get('plugin_domainupdater_Days To Send Expiration Notice');
+            $daysToSendNotification = explode(",", $daysToSendNotification);
+            $daysTillExpires = abs($daysTillExpires);
+            if ( in_array($daysTillExpires, $daysToSendNotification) )  {
+                $contactInfo = $domainNameGateway->callPlugin($userPackage, 'getContactInformation');
+                $registrantEmail = $contactInfo['Registrant']['EmailAddress'][1];
+                $domainNameGateway->sendExpirationReminder($userPackage->id, $registrantEmail, $domainInfo['expires']);
+            }
+        }
+    }
+
+    /**
+     * Function to determine if we should be sending out notifications based on the run schedule of the plugin
+     *
+     * @return boolean
+     */
+    private function canhandleRenewalNotification()
+    {
+        //ToDo: Check to make sure we are only set to run once a day.
+        return true;
+    }
 
     function output() { }
     function dashboard() { }
