@@ -248,7 +248,7 @@ class PluginDomainupdater extends ServicePlugin
 
                 $numberOfDaysTillExpires = (int)$domainNameGateway->getExpiresInDays($domainInfo['expires']);
                 if ( $this->settings->get('plugin_domainupdater_Enable Renewal Notifications?') == 1 ) {
-                    if ( $this->canhandleReneawlNotification() ) {
+                    if ( $this->canHandleRenewalNotification() ) {
                         $this->handleRenewalNotification($userPackage, $numberOfDaysTillExpires, $domainInfo);
                     } else {
                         throw new Exception($this->user->lang('Renewal Notifications are enabled, however the domain updater service is not scheduled to run only once per day.  Please ensure that this service is set to only run once per day.'));
@@ -340,7 +340,7 @@ class PluginDomainupdater extends ServicePlugin
      *
      * @return boolean
      */
-    private function canhandleReneawlNotification()
+    private function canHandleRenewalNotification()
     {
         // Ensure that this service is only set to run once a day.
         $runMinute = $this->settings->get('plugin_domainupdater_Run schedule - Minute');
