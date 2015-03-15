@@ -218,16 +218,21 @@ class PluginDomainupdater extends ServicePlugin
                     if ( $recurringFee->getNextBillDate() != $date ) {
                         $updateNextDueDate = false;
                         // Only update the next due date if:
-                        // - there are not invoices for the package
+                        // - there are no invoices for the package
                         // OR
-                        // - the domain is a transfer
+                        // (
+                        //  - the domain is a transfer
+                        //  AND
+                        //  - The Last Invoice Date is NOT the same as the due date
+                        // )
                         // OR
                         // ( - the difference between the next due date and the domain expiration date is lower than 6 months (180 days)
                         //   AND
                         //   - the difference between the last invoice for the package and the domain expiration date is greater than 6 months (180 days)
                         // )
                         $lastInvoiceDate = $userPackage->getLastInvoiceDate();
-                        if ( $lastInvoiceDate === false ){
+
+                        if ( $lastInvoiceDate === false || ($registrationOption == 1 && $lastInvoiceDate != $date ) ){
                             $updateNextDueDate = true;
                         } else {
                             $nextBillDateDiff = CE_Lib::date_diff($recurringFee->getNextBillDate(), $date);
