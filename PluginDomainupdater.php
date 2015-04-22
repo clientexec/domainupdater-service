@@ -37,7 +37,7 @@ class PluginDomainupdater extends ServicePlugin
             ),
             lang('Cancel Domains?')       => array(
                 'type'          => 'yesno',
-                'description'   => lang('When enabled, a domain in ClientExec that does not exist at the registrar will be marked as cancelled.'),
+                'description'   => lang('When enabled, a domain in Clientexec that does not exist at the registrar will be marked as cancelled.'),
                 'value'         => '0',
             ),
             lang('Force Recurring?')       => array(
@@ -161,7 +161,7 @@ class PluginDomainupdater extends ServicePlugin
                     }
 
                     if ( $this->settings->get('plugin_domainupdater_Cancel Domains?') == 1 ) {
-                        $messages[] = $domainName . ' does not seem to be in your registrar account, marking as cancelled in ClientExec.';
+                        $messages[] = $domainName . ' does not seem to be in your registrar account, marking as cancelled in Clientexec.';
                         $userPackage->cancel(false);
                         continue;
                     }
@@ -171,7 +171,7 @@ class PluginDomainupdater extends ServicePlugin
                 // ToDo: We should not check RGP here, but set a variable in domainInfo instead
                 if ( $this->settings->get('plugin_domainupdater_Cancel Domains?') == 1 ) {
                     if ( $domainInfo['registration'] == 'RGP' ) {
-                        $messages[] = $domainName . ' is in redemption, marking as cancelled in ClientExec.';
+                        $messages[] = $domainName . ' is in redemption, marking as cancelled in Clientexec.';
                         $userPackage->cancel(false);
                         continue;
                     }
