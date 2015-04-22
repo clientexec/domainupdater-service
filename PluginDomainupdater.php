@@ -124,6 +124,7 @@ class PluginDomainupdater extends ServicePlugin
             $domainName = $userPackage->getCustomField('Domain Name');
             $registrar = $userPackage->getCustomField('Registrar');
             $registrationOption = $userPackage->getCustomField('Registration Option');
+            $customerId = $userPackage->getCustomerId();
 
             // no registrar, so skip this entry
             if ( $registrar == '' || $registrar == null ) {
@@ -163,6 +164,9 @@ class PluginDomainupdater extends ServicePlugin
                     if ( $this->settings->get('plugin_domainupdater_Cancel Domains?') == 1 ) {
                         $messages[] = $domainName . ' does not seem to be in your registrar account, marking as cancelled in Clientexec.';
                         $userPackage->cancel(false);
+
+                        $packageLog = Package_EventLog::newInstance(false, $customerId, $row['id'], PACKAGE_EVENTLOG_DOMAINUPDATER_CANCEL, 0, $domainName);
+                        $packageLog->save();
                         continue;
                     }
                 }
@@ -173,6 +177,9 @@ class PluginDomainupdater extends ServicePlugin
                     if ( $domainInfo['registration'] == 'RGP' ) {
                         $messages[] = $domainName . ' is in redemption, marking as cancelled in Clientexec.';
                         $userPackage->cancel(false);
+
+                        $packageLog = Package_EventLog::newInstance(false, $customerId, $row['id'], PACKAGE_EVENTLOG_DOMAINUPDATER_CANCEL, 0, $domainName);
+                        $packageLog->save();
                         continue;
                     }
                 }
@@ -203,6 +210,12 @@ class PluginDomainupdater extends ServicePlugin
                             $recurringFee->SetAmount(0);
                             $recurringFee->Update();
                             $recurringFee->SetAmount($userPackage->getPrice(false));
+
+                            $packageLog = Package_EventLog::newInstance(false, $customerId, $row['id'], PACKAGE_EVENTLOG_DOMAINUPDATER_RECURRING, 0, $domainName);
+                            $packageLog->save();
+
+                            $packageLog = Package_EventLog::newInstance(false, $customerId, $row['id'], PACKAGE_EVENTLOG_DOMAINUPDATER_DATE, 0, $date);
+                            $packageLog->save();
                         }
 
 
@@ -212,6 +225,8 @@ class PluginDomainupdater extends ServicePlugin
                             // if the domain isn't recurring, we should default to a payment term of one year.
                             $recurringFee->setPaymentTerm($this->getPaymentTerm($userPackage));
                             $messages[] = 'Enabled recurring billing for ' . $domainName . '.';
+                            $packageLog = Package_EventLog::newInstance(false, $customerId, $row['id'], PACKAGE_EVENTLOG_DOMAINUPDATER_RECURRING, 0, $domainName);
+                            $packageLog->save();
                         }
                     }
 
@@ -246,6 +261,9 @@ class PluginDomainupdater extends ServicePlugin
                         if($updateNextDueDate) {
                             $recurringFee->setNextBillDate($date);
                             $messages[] = 'Updated next bill date for ' . $domainName . ' to ' . $date . '.';
+
+                            $packageLog = Package_EventLog::newInstance(false, $customerId, $row['id'], PACKAGE_EVENTLOG_DOMAINUPDATER_DATE, 0, $date);
+                            $packageLog->save();
                         }
                     }
                     $recurringFee->Update();
