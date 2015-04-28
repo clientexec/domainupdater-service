@@ -62,7 +62,7 @@ class PluginDomainupdater extends ServicePlugin
             ),
             lang('Days To Send Expiration Notice')  => array(
                 'type'          => 'text',
-                'description'   => lang('Enter the number of days after a domain expires that Clientexec should send a expiration notification.  Separate numbers with a comma.'),
+                'description'   => lang('Enter the number of days after a domain expires that Clientexec should send an expiration notification.  Separate numbers with a comma.'),
                 'value'         => '5',
             ),
             lang('E-mail Notifications')       => array(
