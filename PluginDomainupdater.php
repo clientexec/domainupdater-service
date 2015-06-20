@@ -188,7 +188,7 @@ class PluginDomainupdater extends ServicePlugin
                     $recurringFee = $userPackage->getRecurringFeeEntry();
                     $date = date('Y-m-d', strtotime($domainInfo['expires']));
                     // ensure date is valid
-                    if ( $date == '' || $date == 0 || $date == null || $date == false ) {
+                    if ( $date == '' || $date == 0 || $date == null || $date == false || $date == '1969-12-31' ) {
                         $messages[] = 'Can not determine expiration date for ' . $domainName . '; skipping.';
                         continue;
                     }
