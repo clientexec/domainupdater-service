@@ -124,6 +124,7 @@ class PluginDomainupdater extends ServicePlugin
             $domainName = $userPackage->getCustomField('Domain Name');
             $registrar = $userPackage->getCustomField('Registrar');
             $registrationOption = $userPackage->getCustomField('Registration Option');
+            $transferUpdateDate = $userPackage->getCustomField('Transfer Update Date');
             $customerId = $userPackage->getCustomerId();
 
             // no registrar, so skip this entry
@@ -255,7 +256,7 @@ class PluginDomainupdater extends ServicePlugin
                         // )
                         $lastInvoiceDate = $userPackage->getLastInvoiceDate();
 
-                        if ( $lastInvoiceDate === false || ($registrationOption == 1 && $lastInvoiceDate != $date ) ){
+                        if ( $lastInvoiceDate === false || ($registrationOption == 1 && $transferUpdateDate == 1 && $lastInvoiceDate != $date ) ){
                             $updateNextDueDate = true;
                         } else {
                             $nextBillDateDiff = CE_Lib::date_diff($recurringFee->getNextBillDate(), $date);
@@ -275,6 +276,9 @@ class PluginDomainupdater extends ServicePlugin
                         }
                     }
                     $recurringFee->Update();
+                    if($transferUpdateDate == 1) {
+                        $userPackage->setCustomField("Transfer Update Date", 0);
+                    }
                 }
 
                 $numberOfDaysTillExpires = (int)$domainNameGateway->getExpiresInDays($domainInfo['expires']);
