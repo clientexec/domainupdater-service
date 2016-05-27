@@ -191,14 +191,14 @@ class PluginDomainupdater extends ServicePlugin
 
                     $timeStamp = strtotime($domainInfo['expires']);
                     if ( $timeStamp === false ) {
-                        $messages[] = 'Can not determine expiration date for ' . $domainName . '; skipping.';
+					$messages[] = 'Can not determine expiration date for ' . $domainName . "; skipping (strtotime failed: {$domainInfo['expires']})";
                         continue;
                     }
 
                     $date = date('Y-m-d', $timeStamp);
                     // ensure date is valid
                     if ( $date == '' || $date == 0 || $date == null || $date == false || $date == '1969-12-31' || $date == '1970-01-01' ) {
-                        $messages[] = 'Can not determine expiration date for ' . $domainName . '; skipping.';
+                        $messages[] = 'Can not determine expiration date for ' . $domainName . "; skipping (invaid timestamp: $timeStamp)";
                         continue;
                     }
 
